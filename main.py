@@ -1,6 +1,7 @@
 import os.path
 import datetime
 import pickle
+import streamlit
 
 import tkinter as tk
 import cv2
