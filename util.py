@@ -1,54 +1,28 @@
 import os
 import pickle
-
-import tkinter as tk
-from tkinter import messagebox
+import streamlit as st
 import face_recognition
-
+import numpy as np
+from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
 
 def get_button(window, text, color, command, fg='white'):
-    button = tk.Button(
-                        window,
-                        text=text,
-                        activebackground="black",
-                        activeforeground="white",
-                        fg=fg,
-                        bg=color,
-                        command=command,
-                        height=2,
-                        width=20,
-                        font=('Helvetica bold', 20)
-                    )
-
-    return button
-
+    if st.button(text):
+        command()
 
 def get_img_label(window):
-    label = tk.Label(window)
-    label.grid(row=0, column=0)
-    return label
-
+    return st.empty()
 
 def get_text_label(window, text):
-    label = tk.Label(window, text=text)
-    label.config(font=("sans-serif", 21), justify="left")
-    return label
-
+    st.text(text)
 
 def get_entry_text(window):
-    inputtxt = tk.Text(window,
-                       height=2,
-                       width=15, font=("Arial", 32))
-    return inputtxt
-
+    return st.text_input("Enter text:")
 
 def msg_box(title, description):
-    messagebox.showinfo(title, description)
-
+    st.info(description)
 
 def recognize(img, db_path):
     # it is assumed there will be at most 1 match in the db
-
     embeddings_unknown = face_recognition.face_encodings(img)
     if len(embeddings_unknown) == 0:
         return 'no_persons_found'
@@ -62,8 +36,8 @@ def recognize(img, db_path):
     while not match and j < len(db_dir):
         path_ = os.path.join(db_path, db_dir[j])
 
-        file = open(path_, 'rb')
-        embeddings = pickle.load(file)
+        with open(path_, 'rb') as file:
+            embeddings = pickle.load(file)
 
         match = face_recognition.compare_faces([embeddings], embeddings_unknown)[0]
         j += 1
@@ -72,4 +46,3 @@ def recognize(img, db_path):
         return db_dir[j - 1][:-7]
     else:
         return 'unknown_person'
-
